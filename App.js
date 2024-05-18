@@ -1,20 +1,59 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { View, ActivityIndicator } from "react-native";
+import { createStackNavigator } from "@react-navigation/stack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoginScreen from "./Screens/Login";
+import HomeScreen from "./Screens/Home";
 
-export default function App() {
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      await checkAuth();
+      setIsLoading(false);
+    };
+
+    initializeAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const token = await AsyncStorage.getItem("authtoken");
+      setIsAuthenticated(!!token);
+    } catch (error) {
+      console.error("Error al verificar el token:", error);
+      setIsAuthenticated(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  const AuthStack = createStackNavigator();
+  const LoginStack = createStackNavigator();
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      {isAuthenticated ? (
+        <AuthStack.Navigator>
+          <AuthStack.Screen name="Home" component={HomeScreen} />
+          {/* Add other authenticated screens here */}
+        </AuthStack.Navigator>
+      ) : (
+        <LoginStack.Navigator>
+          <LoginStack.Screen name="Login" component={LoginScreen} />
+        </LoginStack.Navigator>
+      )}
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
