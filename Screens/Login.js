@@ -19,10 +19,10 @@ const LoginScreen = ({ navigation }) => {
 
       const token = response.data;
       console.log(response);
-      console.log(response.data);
       await AsyncStorage.setItem("authtoken", token);
-
-      navigation.navigate("Home"); // Navegar a la pantalla de publicaciones
+      
+      navigation.navigate('Test');
+      
     } catch (error) {
       console.error(error);
       alert("Error al iniciar sesión"); // Mostrar mensaje de error al usuario
